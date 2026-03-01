@@ -36,6 +36,7 @@ import time
 # Create an LED object connected to physical pin 11 (BOARD numbering).
 # gpiozero uses "BOARD" prefix strings for physical pin numbers.
 # Physical pin 11 = BCM GPIO17
+# Use Your Green LED on Pin 11
 led = LED("BOARD11")
 
 print("Lab 01 - Blink starting...")
