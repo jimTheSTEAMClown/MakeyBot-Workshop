@@ -1,0 +1,1039 @@
+{
+  "robot": "Bob",
+  "owner": "STEAMClown",
+  "registered": "2026-03-13T09:00:00",
+  "log_schema": {
+    "message_type": {
+      "online": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "message"
+        ]
+      },
+      "offline": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "message"
+        ]
+      },
+      "heartbeat": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "message"
+        ]
+      },
+      "command": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "request_id",
+          "features"
+        ]
+      },
+      "command_acknowledged": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "request_id",
+          "message"
+        ]
+      },
+      "command_rejected": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "request_id",
+          "message"
+        ]
+      },
+      "current_state": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "features"
+        ]
+      },
+      "processed_offline_commands": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "commands_processed",
+          "message"
+        ]
+      },
+      "ignored_offline_commands": {
+        "required_fields": [
+          "robot",
+          "timestamp",
+          "message_type",
+          "sent_by",
+          "commands_ignored",
+          "message"
+        ]
+      }
+    },
+    "request_id_format": "RobotName_sender_sequence",
+    "request_id_example": "RobotAlpha_bob_0001",
+    "timestamp_format": "ISO 8601 e.g. 2026-02-28T10:05:00",
+    "notes": "Commands include only changed features. current_state includes all features."
+  },
+  "makey_features": {
+    "eyes": {
+      "command_spec": {
+        "set_right_rgb_eye_color": {
+          "type": "rgb_list",
+          "description": "RGB color for right eye as [R, G, B]",
+          "default": [
+            0,
+            0,
+            0
+          ],
+          "valid_range": {
+            "each_channel": "0-255"
+          }
+        },
+        "set_left_rgb_eye_color": {
+          "type": "rgb_list",
+          "description": "RGB color for left eye as [R, G, B]",
+          "default": [
+            0,
+            0,
+            0
+          ],
+          "valid_range": {
+            "each_channel": "0-255"
+          }
+        },
+        "set_right_eye_blink": {
+          "type": "object",
+          "description": "Slow deliberate on/off blink pattern for right eye",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-10000",
+              "default": 1000
+            },
+            "duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "50-500",
+              "default": 200
+            },
+            "random": {
+              "type": "boolean",
+              "default": false
+            },
+            "random_min_interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "10000-60000",
+              "default": 10000
+            },
+            "random_max_interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "10000-60000",
+              "default": 30000
+            }
+          }
+        },
+        "set_left_eye_blink": {
+          "type": "object",
+          "description": "Slow deliberate on/off blink pattern for left eye",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-10000",
+              "default": 1000
+            },
+            "duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "50-500",
+              "default": 200
+            },
+            "random": {
+              "type": "boolean",
+              "default": false
+            },
+            "random_min_interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "10000-60000",
+              "default": 10000
+            },
+            "random_max_interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "10000-60000",
+              "default": 30000
+            }
+          }
+        },
+        "set_eye_strobe": {
+          "type": "object",
+          "description": "Rapid continuous flicker creating a visual strobe effect on both eyes",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "speed": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "50-500",
+              "default": 100
+            },
+            "duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-10000",
+              "default": 1000
+            }
+          }
+        },
+        "set_eye_pulse": {
+          "type": "object",
+          "description": "Rhythmic heartbeat-style fade in and out on both eyes",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "rate": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "200-5000",
+              "default": 1000
+            },
+            "min_brightness": {
+              "type": "integer",
+              "unit": "percent",
+              "range": "0-100",
+              "default": 0
+            },
+            "max_brightness": {
+              "type": "integer",
+              "unit": "percent",
+              "range": "0-100",
+              "default": 100
+            }
+          }
+        },
+        "set_eye_color_shift": {
+          "type": "object",
+          "description": "One-time smooth transition between two colors on both eyes",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "color_from": {
+              "type": "rgb_list_or_string",
+              "description": "Starting color as [R,G,B] or the string 'random'",
+              "default": [
+                0,
+                0,
+                0
+              ]
+            },
+            "color_to": {
+              "type": "rgb_list_or_string",
+              "description": "Ending color as [R,G,B] or the string 'random'",
+              "default": [
+                255,
+                255,
+                255
+              ]
+            },
+            "duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-10000",
+              "default": 2000
+            }
+          }
+        },
+        "set_eye_color_cycle": {
+          "type": "object",
+          "description": "Continuously loops through a list of colors on both eyes",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "colors": {
+              "type": "list_of_rgb_lists",
+              "description": "List of 2-10 RGB colors to cycle through",
+              "min_colors": 2,
+              "max_colors": 10,
+              "default": [
+                [
+                  255,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  255,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "speed": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "100-5000",
+              "default": 1000
+            },
+            "loop": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "set_lock_left_to_right_eye": {
+          "type": "boolean",
+          "description": "When true, left eye mirrors all right eye commands",
+          "default": false
+        },
+        "set_eye_random_color": {
+          "type": "object",
+          "description": "Randomly changes both eye colors at a set interval",
+          "keys": {
+            "active": {
+              "type": "boolean",
+              "default": false
+            },
+            "interval": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-30000",
+              "default": 5000
+            }
+          }
+        },
+        "set_eye_emotion_preset": {
+          "type": "string",
+          "description": "Higher-level abstraction mapping to a combination of lower-level eye settings",
+          "default": "neutral",
+          "options": [
+            "happy",
+            "angry",
+            "sleepy",
+            "confused",
+            "excited",
+            "neutral"
+          ]
+        }
+      },
+      "default_state": {
+        "set_right_rgb_eye_color": [
+          0,
+          0,
+          0
+        ],
+        "set_left_rgb_eye_color": [
+          0,
+          0,
+          0
+        ],
+        "set_right_eye_blink": {
+          "active": false,
+          "interval": 1000,
+          "duration": 200,
+          "random": false,
+          "random_min_interval": 10000,
+          "random_max_interval": 30000
+        },
+        "set_left_eye_blink": {
+          "active": false,
+          "interval": 1000,
+          "duration": 200,
+          "random": false,
+          "random_min_interval": 10000,
+          "random_max_interval": 30000
+        },
+        "set_eye_strobe": {
+          "active": false,
+          "speed": 100,
+          "duration": 1000
+        },
+        "set_eye_pulse": {
+          "active": false,
+          "rate": 1000,
+          "min_brightness": 0,
+          "max_brightness": 100
+        },
+        "set_eye_color_shift": {
+          "active": false,
+          "color_from": [
+            0,
+            0,
+            0
+          ],
+          "color_to": [
+            255,
+            255,
+            255
+          ],
+          "duration": 2000
+        },
+        "set_eye_color_cycle": {
+          "active": false,
+          "colors": [
+            [
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              255
+            ]
+          ],
+          "speed": 1000,
+          "loop": true
+        },
+        "set_lock_left_to_right_eye": false,
+        "set_eye_random_color": {
+          "active": false,
+          "interval": 5000
+        },
+        "set_eye_emotion_preset": "neutral"
+      }
+    },
+    "stop_light": {
+      "command_spec": {
+        "traffic": {
+          "description": "Rule-based signal behavior. sub_mode is required. cycle_settings only required when sub_mode is cycle.",
+          "sub_mode": {
+            "type": "string",
+            "options": [
+              "stop",
+              "caution",
+              "go",
+              "cycle"
+            ],
+            "descriptions": {
+              "stop": "blinking red only, interval 500ms, duration 250ms",
+              "caution": "blinking yellow only, interval 750ms, duration 375ms",
+              "go": "solid green only",
+              "cycle": "auto-sequences red to yellow to green to yellow and back"
+            }
+          },
+          "cycle_settings": {
+            "red_duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "1000-30000",
+              "default": 5000
+            },
+            "yellow_duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "500-10000",
+              "default": 2000
+            },
+            "green_duration": {
+              "type": "integer",
+              "unit": "ms",
+              "range": "1000-30000",
+              "default": 5000
+            }
+          }
+        },
+        "freeform": {
+          "description": "Direct independent control of each LED. mode is the single source of truth for each LED.",
+          "red_led": {
+            "mode": {
+              "type": "string",
+              "options": [
+                "on",
+                "off",
+                "blink",
+                "strobe",
+                "fade",
+                "pulse",
+                "dim",
+                "morse_message"
+              ],
+              "description": "Single source of truth for this LED. Only one behavior active at a time."
+            },
+            "blink": {
+              "type": "object",
+              "required_when_mode": "blink",
+              "keys": {
+                "interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-5000"
+                },
+                "random": {
+                  "type": "boolean"
+                },
+                "random_min_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                },
+                "random_max_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                }
+              }
+            },
+            "strobe": {
+              "type": "object",
+              "required_when_mode": "strobe",
+              "keys": {
+                "speed": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-500"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "500-10000"
+                }
+              }
+            },
+            "fade": {
+              "type": "object",
+              "required_when_mode": "fade",
+              "description": "Ramps LED brightness using PWM. Set up and/or down to control direction. If both are true the LED fades up then down continuously. Requires PWMLED.",
+              "keys": {
+                "up": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, ramp from off to full brightness."
+                },
+                "down": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, ramp from full brightness to off. If both up and down are true, the fade cycles up then down."
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000",
+                  "default": 1000,
+                  "description": "Time for each direction (up or down). A full up+down cycle takes 2x this value."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "pulse": {
+              "type": "object",
+              "required_when_mode": "pulse",
+              "description": "Rhythmic brightness animation using PWM. The pattern controls the shape of the waveform. Rate scales the overall speed. Requires PWMLED.",
+              "keys": {
+                "pattern": {
+                  "type": "string",
+                  "default": "sine",
+                  "options": [
+                    "sine",
+                    "heart",
+                    "breathe",
+                    "flutter",
+                    "alert",
+                    "bounce"
+                  ],
+                  "descriptions": {
+                    "sine": "Default smooth continuous rise-and-fall sine wave.",
+                    "heart": "Double-beat lub-dub: quick rise, partial fall, rise again, then a long rest.",
+                    "breathe": "Very slow inhale-hold-exhale-hold cycle. Calm and meditative.",
+                    "flutter": "Fast organic flicker with irregular cadence. Candle or flame feel.",
+                    "alert": "Sharp single flash followed by a long dark pause. Alarm or warning.",
+                    "bounce": "Ramps up quickly then decays in diminishing steps, like a dropped ball."
+                  }
+                },
+                "rate": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "200-10000",
+                  "default": 1000,
+                  "description": "Duration of one full pattern cycle in ms. Acts as a speed multiplier for all patterns."
+                },
+                "min_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 0
+                },
+                "max_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 100
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "dim": {
+              "type": "object",
+              "required_when_mode": "dim",
+              "description": "Holds the LED at a fixed PWM brightness level. Requires PWMLED.",
+              "keys": {
+                "brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "1-99",
+                  "default": 50,
+                  "description": "Fixed brightness level as a percentage. 0=off, 100=on (use those modes instead)."
+                }
+              }
+            },
+            "morse_message": {
+              "type": "object",
+              "required_when_mode": "morse_message",
+              "description": "Flashes any text message in Morse code. Dot/dash timing is calculated from wpm. Loops continuously.",
+              "keys": {
+                "message": {
+                  "type": "string",
+                  "description": "The text message to transmit in Morse code. Unsupported characters are skipped.",
+                  "default": "SOS"
+                },
+                "wpm": {
+                  "type": "integer",
+                  "unit": "words per minute",
+                  "range": "1-30",
+                  "default": 5,
+                  "description": "Transmission speed. Standard PARIS method: 1 wpm = dot duration of 240ms."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats the message continuously. If false, transmits once."
+                }
+              }
+            }
+          },
+          "yellow_led": {
+            "mode": {
+              "type": "string",
+              "options": [
+                "on",
+                "off",
+                "blink",
+                "strobe",
+                "fade",
+                "pulse",
+                "dim",
+                "morse_message"
+              ],
+              "description": "Single source of truth for this LED. Only one behavior active at a time."
+            },
+            "blink": {
+              "type": "object",
+              "required_when_mode": "blink",
+              "keys": {
+                "interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-5000"
+                },
+                "random": {
+                  "type": "boolean"
+                },
+                "random_min_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                },
+                "random_max_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                }
+              }
+            },
+            "strobe": {
+              "type": "object",
+              "required_when_mode": "strobe",
+              "keys": {
+                "speed": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-500"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "500-10000"
+                }
+              }
+            },
+            "fade": {
+              "type": "object",
+              "required_when_mode": "fade",
+              "description": "Ramps LED brightness using PWM. Set up and/or down to control direction. If both are true the LED fades up then down continuously. Requires PWMLED.",
+              "keys": {
+                "up": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, ramp from off to full brightness."
+                },
+                "down": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, ramp from full brightness to off. If both up and down are true, the fade cycles up then down."
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000",
+                  "default": 1000,
+                  "description": "Time for each direction (up or down). A full up+down cycle takes 2x this value."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "pulse": {
+              "type": "object",
+              "required_when_mode": "pulse",
+              "description": "Rhythmic brightness animation using PWM. The pattern controls the shape of the waveform. Rate scales the overall speed. Requires PWMLED.",
+              "keys": {
+                "pattern": {
+                  "type": "string",
+                  "default": "sine",
+                  "options": [
+                    "sine",
+                    "heart",
+                    "breathe",
+                    "flutter",
+                    "alert",
+                    "bounce"
+                  ],
+                  "descriptions": {
+                    "sine": "Default smooth continuous rise-and-fall sine wave.",
+                    "heart": "Double-beat lub-dub: quick rise, partial fall, rise again, then a long rest.",
+                    "breathe": "Very slow inhale-hold-exhale-hold cycle. Calm and meditative.",
+                    "flutter": "Fast organic flicker with irregular cadence. Candle or flame feel.",
+                    "alert": "Sharp single flash followed by a long dark pause. Alarm or warning.",
+                    "bounce": "Ramps up quickly then decays in diminishing steps, like a dropped ball."
+                  }
+                },
+                "rate": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "200-10000",
+                  "default": 1000,
+                  "description": "Duration of one full pattern cycle in ms. Acts as a speed multiplier for all patterns."
+                },
+                "min_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 0
+                },
+                "max_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 100
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "dim": {
+              "type": "object",
+              "required_when_mode": "dim",
+              "description": "Holds the LED at a fixed PWM brightness level. Requires PWMLED.",
+              "keys": {
+                "brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "1-99",
+                  "default": 50,
+                  "description": "Fixed brightness level as a percentage. 0=off, 100=on (use those modes instead)."
+                }
+              }
+            },
+            "morse_message": {
+              "type": "object",
+              "required_when_mode": "morse_message",
+              "description": "Flashes any text message in Morse code. Dot/dash timing is calculated from wpm. Loops continuously.",
+              "keys": {
+                "message": {
+                  "type": "string",
+                  "description": "The text message to transmit in Morse code. Unsupported characters are skipped.",
+                  "default": "SOS"
+                },
+                "wpm": {
+                  "type": "integer",
+                  "unit": "words per minute",
+                  "range": "1-30",
+                  "default": 5,
+                  "description": "Transmission speed. Standard PARIS method: 1 wpm = dot duration of 240ms."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats the message continuously. If false, transmits once."
+                }
+              }
+            }
+          },
+          "green_led": {
+            "mode": {
+              "type": "string",
+              "options": [
+                "on",
+                "off",
+                "blink",
+                "strobe",
+                "fade",
+                "pulse",
+                "dim",
+                "morse_message"
+              ],
+              "description": "Single source of truth for this LED. Only one behavior active at a time."
+            },
+            "blink": {
+              "type": "object",
+              "required_when_mode": "blink",
+              "keys": {
+                "interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-5000"
+                },
+                "random": {
+                  "type": "boolean"
+                },
+                "random_min_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                },
+                "random_max_interval": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "10000-60000"
+                }
+              }
+            },
+            "strobe": {
+              "type": "object",
+              "required_when_mode": "strobe",
+              "keys": {
+                "speed": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "50-500"
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "500-10000"
+                }
+              }
+            },
+            "fade": {
+              "type": "object",
+              "required_when_mode": "fade",
+              "description": "Ramps LED brightness using PWM. Set up and/or down to control direction. If both are true the LED fades up then down continuously. Requires PWMLED.",
+              "keys": {
+                "up": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, ramp from off to full brightness."
+                },
+                "down": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, ramp from full brightness to off. If both up and down are true, the fade cycles up then down."
+                },
+                "duration": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "100-10000",
+                  "default": 1000,
+                  "description": "Time for each direction (up or down). A full up+down cycle takes 2x this value."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "pulse": {
+              "type": "object",
+              "required_when_mode": "pulse",
+              "description": "Rhythmic brightness animation using PWM. The pattern controls the shape of the waveform. Rate scales the overall speed. Requires PWMLED.",
+              "keys": {
+                "pattern": {
+                  "type": "string",
+                  "default": "sine",
+                  "options": [
+                    "sine",
+                    "heart",
+                    "breathe",
+                    "flutter",
+                    "alert",
+                    "bounce"
+                  ],
+                  "descriptions": {
+                    "sine": "Default smooth continuous rise-and-fall sine wave.",
+                    "heart": "Double-beat lub-dub: quick rise, partial fall, rise again, then a long rest.",
+                    "breathe": "Very slow inhale-hold-exhale-hold cycle. Calm and meditative.",
+                    "flutter": "Fast organic flicker with irregular cadence. Candle or flame feel.",
+                    "alert": "Sharp single flash followed by a long dark pause. Alarm or warning.",
+                    "bounce": "Ramps up quickly then decays in diminishing steps, like a dropped ball."
+                  }
+                },
+                "rate": {
+                  "type": "integer",
+                  "unit": "ms",
+                  "range": "200-10000",
+                  "default": 1000,
+                  "description": "Duration of one full pattern cycle in ms. Acts as a speed multiplier for all patterns."
+                },
+                "min_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 0
+                },
+                "max_brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "0-100",
+                  "default": 100
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats continuously. If false, runs once and holds final state."
+                }
+              }
+            },
+            "dim": {
+              "type": "object",
+              "required_when_mode": "dim",
+              "description": "Holds the LED at a fixed PWM brightness level. Requires PWMLED.",
+              "keys": {
+                "brightness": {
+                  "type": "integer",
+                  "unit": "percent",
+                  "range": "1-99",
+                  "default": 50,
+                  "description": "Fixed brightness level as a percentage. 0=off, 100=on (use those modes instead)."
+                }
+              }
+            },
+            "morse_message": {
+              "type": "object",
+              "required_when_mode": "morse_message",
+              "description": "Flashes any text message in Morse code. Dot/dash timing is calculated from wpm. Loops continuously.",
+              "keys": {
+                "message": {
+                  "type": "string",
+                  "description": "The text message to transmit in Morse code. Unsupported characters are skipped.",
+                  "default": "SOS"
+                },
+                "wpm": {
+                  "type": "integer",
+                  "unit": "words per minute",
+                  "range": "1-30",
+                  "default": 5,
+                  "description": "Transmission speed. Standard PARIS method: 1 wpm = dot duration of 240ms."
+                },
+                "loop": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "If true, repeats the message continuously. If false, transmits once."
+                }
+              }
+            }
+          }
+        },
+        "off": {
+          "description": "All LEDs off. No additional settings required."
+        }
+      },
+      "default_state": {
+        "mode": "off"
+      }
+    },
+    "servo": {
+      "command_spec": {},
+      "default_state": {}
+    }
+  }
+}
