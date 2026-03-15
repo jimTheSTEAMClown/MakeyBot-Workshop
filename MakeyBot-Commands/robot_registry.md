@@ -4,7 +4,7 @@ This document is the human-readable companion to `robot_registry.jsonl`.
 
 | File | Purpose |
 |---|---|
-| `robot_registry.jsonl` | Machine-readable specification. The Raspberry Pi loads this at boot to know what features it supports, what values are valid, and what default state to start in. |
+| (`robot_registry.jsonl`)[https://github.com/jimTheSTEAMClown/MakeyBot-Workshop/blob/main/MakeyBot-Commands/robot_commands.jsonl] | Machine-readable specification. The Raspberry Pi loads this at boot to know what features it supports, what values are valid, and what default state to start in. |
 | `robot_commands.jsonl` | Live activity log. Commands from students and responses from the robot are appended here as single-line JSON (JSONL). |
 | `robot_registry.md` | This file. Human-readable reference for every option, with command examples. |
 
