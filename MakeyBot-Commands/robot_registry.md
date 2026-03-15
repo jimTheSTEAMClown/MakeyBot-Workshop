@@ -2,9 +2,11 @@
 
 This document is the human-readable companion to `robot_registry.jsonl`.
 
-- **`robot_registry.jsonl`** — machine-readable specification. The Raspberry Pi loads this at boot to know what features it supports, what values are valid, and what default state to start in.
-- **`robot_commands.jsonl`** — live activity log. Commands from students and responses from the robot are appended here as single-line JSON (JSONL).
-- **`robot_registry.md`** (this file) — human-readable reference. Use this to understand every option and write correct commands.
+| File | Purpose |
+|---|---|
+| `robot_registry.jsonl` | Machine-readable specification. The Raspberry Pi loads this at boot to know what features it supports, what values are valid, and what default state to start in. |
+| `robot_commands.jsonl` | Live activity log. Commands from students and responses from the robot are appended here as single-line JSON (JSONL). |
+| `robot_registry.md` | This file. Human-readable reference for every option, with command examples. |
 
 ---
 
@@ -17,18 +19,19 @@ The **robot** (Raspberry Pi) polls the file, reads the command, validates it aga
 
 After execution the robot writes a `current_state` entry showing its full state.
 
-**Commands only need to include the features being changed.** Omitted features are left in their current state.
+> **Commands only need to include the features being changed.** Omitted features stay in their current state.
 
 ---
 
 ## Message Types
 
 All entries share three required fields: `robot`, `timestamp`, and `message_type`.
+Timestamps use ISO 8601 format: `2026-02-28T09:10:00`
 
 | message_type | Sent by | Purpose |
 |---|---|---|
-| `login` | Robot | Robot came online |
-| `logout` | Robot | Robot going offline |
+| `online` | Robot | Robot came online |
+| `offline` | Robot | Robot going offline |
 | `heartbeat` | Robot | Periodic keep-alive |
 | `command` | Controller | Request to change robot state |
 | `command_acknowledged` | Robot | Command accepted, executing |
@@ -37,11 +40,15 @@ All entries share three required fields: `robot`, `timestamp`, and `message_type
 | `processed_offline_commands` | Robot | Commands executed while offline |
 | `ignored_offline_commands` | Robot | Commands discarded (e.g. stale) |
 
-### login / logout
+### online / offline
 ```json
 {"robot": "RobotAlpha", "timestamp": "2026-02-28T09:00:00",
- "message_type": "login", "sent_by": "student_alice",
+ "message_type": "online", "sent_by": "student_alice",
  "message": "RobotAlpha is online and ready."}
+
+{"robot": "RobotAlpha", "timestamp": "2026-02-28T09:20:00",
+ "message_type": "offline", "sent_by": "student_alice",
+ "message": "RobotAlpha is going offline."}
 ```
 
 ### heartbeat
@@ -51,13 +58,14 @@ All entries share three required fields: `robot`, `timestamp`, and `message_type
 ```
 
 ### command
+`request_id` format: `RobotName_sender_sequence` — e.g. `RobotAlpha_bob_0001`
+
 ```json
 {"robot": "RobotAlpha", "timestamp": "2026-02-28T09:07:30",
  "message_type": "command", "sent_by": "student_bob",
  "request_id": "RobotAlpha_bob_0001",
  "features": { ... }}
 ```
-`request_id` format: `RobotName_sender_sequence` — e.g. `RobotAlpha_bob_0001`
 
 ### command_acknowledged / command_rejected
 ```json
@@ -109,9 +117,13 @@ features
 
 Controls the two RGB LED eyes. Each eye has an independent color. Most animation effects apply to **both eyes simultaneously**.
 
-### Eye color
+**Default state at boot:** both eyes off (`[0,0,0]`), all effects inactive, emotion preset `neutral`.
 
-Set each eye independently using `[R, G, B]` values from 0–255.
+---
+
+### set_right_rgb_eye_color / set_left_rgb_eye_color
+
+Set each eye independently using `[R, G, B]` values 0–255.
 
 ```json
 {"features": {"eyes": {
@@ -120,7 +132,16 @@ Set each eye independently using `[R, G, B]` values from 0–255.
 }}}
 ```
 
-Lock the left eye to always mirror the right eye:
+---
+
+### set_lock_left_to_right_eye
+
+When `true`, the left eye mirrors all right eye commands automatically.
+
+| Type | Default |
+|---|---|
+| boolean | false |
+
 ```json
 {"features": {"eyes": {
   "set_lock_left_to_right_eye": true,
@@ -128,36 +149,22 @@ Lock the left eye to always mirror the right eye:
 }}}
 ```
 
-### set_eye_emotion_preset
-
-High-level shortcut that maps to a combination of lower-level eye settings.
-
-| Option | Description |
-|---|---|
-| `neutral` | Default — eyes off or dim white |
-| `happy` | Bright warm color, gentle pulse |
-| `angry` | Red, rapid strobe |
-| `sleepy` | Dim, slow blink |
-| `confused` | Random color changes |
-| `excited` | Fast color cycle |
-
-```json
-{"features": {"eyes": {"set_eye_emotion_preset": "happy"}}}
-```
+---
 
 ### set_right_eye_blink / set_left_eye_blink
 
-Slow deliberate on/off blink on one eye. Can be randomised.
+Slow deliberate on/off blink on one eye. Can be randomised for a natural feel.
 
 | Key | Type | Range | Default | Description |
 |---|---|---|---|---|
 | `active` | boolean | — | false | Enable/disable |
 | `interval` | integer ms | 500–10000 | 1000 | Time between blinks |
-| `duration` | integer ms | 50–500 | 200 | How long the eye is off during a blink |
+| `duration` | integer ms | 50–500 | 200 | How long the eye is off per blink |
 | `random` | boolean | — | false | If true, interval is randomised |
 | `random_min_interval` | integer ms | 10000–60000 | 10000 | Minimum random interval |
 | `random_max_interval` | integer ms | 10000–60000 | 30000 | Maximum random interval |
 
+Regular blink:
 ```json
 {"features": {"eyes": {
   "set_right_eye_blink": {"active": true, "interval": 3000, "duration": 150, "random": false}
@@ -173,6 +180,8 @@ Random blink (natural feel):
   }
 }}}
 ```
+
+---
 
 ### set_eye_strobe
 
@@ -190,6 +199,8 @@ Rapid continuous flicker on both eyes.
 }}}
 ```
 
+---
+
 ### set_eye_pulse
 
 Rhythmic heartbeat-style brightness fade on both eyes. Requires PWMLED.
@@ -197,7 +208,7 @@ Rhythmic heartbeat-style brightness fade on both eyes. Requires PWMLED.
 | Key | Type | Range | Default | Description |
 |---|---|---|---|---|
 | `active` | boolean | — | false | Enable/disable |
-| `rate` | integer ms | 200–5000 | 1000 | One full pulse cycle |
+| `rate` | integer ms | 200–5000 | 1000 | One full pulse cycle duration |
 | `min_brightness` | integer % | 0–100 | 0 | Dimmest point |
 | `max_brightness` | integer % | 0–100 | 100 | Brightest point |
 
@@ -206,6 +217,8 @@ Rhythmic heartbeat-style brightness fade on both eyes. Requires PWMLED.
   "set_eye_pulse": {"active": true, "rate": 1200, "min_brightness": 10, "max_brightness": 100}
 }}}
 ```
+
+---
 
 ### set_eye_color_shift
 
@@ -229,6 +242,8 @@ One-time smooth transition between two colors on both eyes.
 }}}
 ```
 
+---
+
 ### set_eye_color_cycle
 
 Continuously loops through a list of 2–10 colors on both eyes.
@@ -251,6 +266,8 @@ Continuously loops through a list of 2–10 colors on both eyes.
 }}}
 ```
 
+---
+
 ### set_eye_random_color
 
 Randomly changes both eye colors at a set interval.
@@ -268,9 +285,32 @@ Randomly changes both eye colors at a set interval.
 
 ---
 
+### set_eye_emotion_preset
+
+High-level shortcut that maps to a combination of lower-level eye settings.
+
+| Option | Description |
+|---|---|
+| `neutral` | Default — eyes off or dim white |
+| `happy` | Bright warm color, gentle pulse |
+| `angry` | Red, rapid strobe |
+| `sleepy` | Dim, slow blink |
+| `confused` | Random color changes |
+| `excited` | Fast color cycle |
+
+```json
+{"features": {"eyes": {"set_eye_emotion_preset": "happy"}}}
+```
+
+---
+
 ## Feature: stop_light
 
-Controls the three-LED stop light (Red / Yellow / Green). Has three top-level modes: `traffic`, `freeform`, and `off`.
+Controls the three-LED stop light (Red / Yellow / Green). Set `mode` to one of three top-level values: `traffic`, `freeform`, or `off`.
+
+**Default state at boot:** `{"mode": "off"}`
+
+---
 
 ### mode: off
 
@@ -301,7 +341,14 @@ Rule-based signal behavior. `sub_mode` is required.
 {"features": {"stop_light": {"mode": "traffic", "sub_mode": "caution"}}}
 ```
 
-For `cycle`, you can optionally set durations:
+For `cycle`, optionally set phase durations with `cycle_settings`:
+
+| Key | Range | Default |
+|---|---|---|
+| `red_duration` | 1000–30000 ms | 5000 |
+| `yellow_duration` | 500–10000 ms | 2000 |
+| `green_duration` | 1000–30000 ms | 5000 |
+
 ```json
 {"features": {"stop_light": {
   "mode": "traffic",
@@ -314,24 +361,18 @@ For `cycle`, you can optionally set durations:
 }}}
 ```
 
-| Key | Range | Default |
-|---|---|---|
-| `red_duration` | 1000–30000 ms | 5000 |
-| `yellow_duration` | 500–10000 ms | 2000 |
-| `green_duration` | 1000–30000 ms | 5000 |
-
 ---
 
 ### mode: freeform
 
-Direct independent control of each LED. Each LED has its own `mode` key that is the single source of truth for its behavior. Only one behavior can be active per LED at a time.
+Direct independent control of each LED. Each LED has its own `mode` key — the single source of truth for that LED's behavior. Only one behavior can be active per LED at a time.
 
 ```json
 {"features": {"stop_light": {
   "mode": "freeform",
-  "red_led":    { ... },
-  "yellow_led": { ... },
-  "green_led":  { ... }
+  "red_led":    { "mode": "..." },
+  "yellow_led": { "mode": "..." },
+  "green_led":  { "mode": "..." }
 }}}
 ```
 
@@ -341,7 +382,7 @@ Available LED modes: `on`, `off`, `blink`, `strobe`, `fade`, `pulse`, `dim`, `mo
 
 #### LED mode: on / off
 
-No settings required.
+No additional settings required.
 
 ```json
 {"features": {"stop_light": {
@@ -362,7 +403,7 @@ Slow deliberate on/off blink.
 |---|---|---|---|
 | `interval` | integer ms | 100–10000 | Time between blinks |
 | `duration` | integer ms | 50–5000 | How long the LED is on per blink |
-| `random` | boolean | — | Randomise interval |
+| `random` | boolean | — | Randomise the interval |
 | `random_min_interval` | integer ms | 10000–60000 | Min random interval |
 | `random_max_interval` | integer ms | 10000–60000 | Max random interval |
 
@@ -399,15 +440,15 @@ Rapid continuous flicker.
 
 #### LED mode: fade
 
-Ramps LED brightness using PWM. `up` and `down` control direction.
+Ramps LED brightness using PWM. `up` and `down` booleans control direction.
 If both are `true`, the LED fades up then down in a continuous cycle.
-Requires PWMLED.
+A full up+down cycle takes `2 × duration`. Requires PWMLED.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `up` | boolean | true | Ramp from off to full brightness |
-| `down` | boolean | false | Ramp from full brightness to off |
-| `duration` | integer ms 100–10000 | 1000 | Time per direction. Full up+down cycle = 2× this value |
+| `up` | boolean | true | Ramp from off → full brightness |
+| `down` | boolean | false | Ramp from full brightness → off |
+| `duration` | integer ms 100–10000 | 1000 | Time for each direction |
 | `loop` | boolean | true | Repeat continuously or run once |
 
 Fade up only:
@@ -420,13 +461,23 @@ Fade up only:
 }}}
 ```
 
-Fade up then down (full cycle):
+Fade up then down (full cycle, 4s total):
 ```json
 {"features": {"stop_light": {
   "mode": "freeform",
   "red_led":    {"mode": "off"},
   "yellow_led": {"mode": "off"},
   "green_led":  {"mode": "fade", "fade": {"up": true, "down": true, "duration": 2000, "loop": true}}
+}}}
+```
+
+Fade down only (run once):
+```json
+{"features": {"stop_light": {
+  "mode": "freeform",
+  "red_led":    {"mode": "fade", "fade": {"up": false, "down": true, "duration": 1000, "loop": false}},
+  "yellow_led": {"mode": "off"},
+  "green_led":  {"mode": "off"}
 }}}
 ```
 
@@ -440,8 +491,8 @@ Rhythmic brightness animation using PWM. `pattern` selects the waveform shape. `
 |---|---|---|---|---|
 | `pattern` | string | see below | `sine` | Waveform shape |
 | `rate` | integer ms | 200–10000 | 1000 | One full cycle duration |
-| `min_brightness` | integer % | 0–100 | 0 | Dimmest point |
-| `max_brightness` | integer % | 0–100 | 100 | Brightest point |
+| `min_brightness` | integer % | 0–100 | 0 | Dimmest point in the cycle |
+| `max_brightness` | integer % | 0–100 | 100 | Brightest point in the cycle |
 | `loop` | boolean | — | true | Repeat or run once |
 
 **Patterns:**
@@ -458,30 +509,28 @@ Rhythmic brightness animation using PWM. `pattern` selects the waveform shape. `
 ```json
 {"features": {"stop_light": {
   "mode": "freeform",
-  "red_led":    {"mode": "pulse", "pulse": {"pattern": "heart", "rate": 800, "min_brightness": 0, "max_brightness": 100, "loop": true}},
-  "yellow_led": {"mode": "off"},
-  "green_led":  {"mode": "off"}
+  "red_led":    {"mode": "pulse", "pulse": {"pattern": "heart",   "rate": 800,  "min_brightness": 0, "max_brightness": 100, "loop": true}},
+  "yellow_led": {"mode": "pulse", "pulse": {"pattern": "flutter", "rate": 300,  "min_brightness": 20,"max_brightness": 100, "loop": true}},
+  "green_led":  {"mode": "pulse", "pulse": {"pattern": "breathe", "rate": 4000, "min_brightness": 0, "max_brightness": 100, "loop": true}}
 }}}
 ```
 
+Other pattern examples:
 ```json
-{"features": {"stop_light": {
-  "mode": "freeform",
-  "red_led":    {"mode": "off"},
-  "yellow_led": {"mode": "pulse", "pulse": {"pattern": "flutter", "rate": 300, "min_brightness": 20, "max_brightness": 100, "loop": true}},
-  "green_led":  {"mode": "pulse", "pulse": {"pattern": "breathe", "rate": 4000, "min_brightness": 0, "max_brightness": 100, "loop": true}}
-}}}
+{"mode": "pulse", "pulse": {"pattern": "sine",   "rate": 1000, "min_brightness": 0, "max_brightness": 100, "loop": true}}
+{"mode": "pulse", "pulse": {"pattern": "alert",  "rate": 1200, "min_brightness": 0, "max_brightness": 100, "loop": true}}
+{"mode": "pulse", "pulse": {"pattern": "bounce", "rate": 1500, "min_brightness": 0, "max_brightness": 100, "loop": true}}
 ```
 
 ---
 
 #### LED mode: dim
 
-Holds the LED at a fixed PWM brightness. Requires PWMLED.
+Holds the LED at a fixed PWM brightness. Use `on` for 100% and `off` for 0%. Requires PWMLED.
 
 | Key | Type | Range | Default | Description |
 |---|---|---|---|---|
-| `brightness` | integer % | 1–99 | 50 | Fixed level. Use `on` for 100%, `off` for 0%. |
+| `brightness` | integer % | 1–99 | 50 | Fixed brightness level |
 
 ```json
 {"features": {"stop_light": {
@@ -496,15 +545,15 @@ Holds the LED at a fixed PWM brightness. Requires PWMLED.
 
 #### LED mode: morse_message
 
-Flashes any text as Morse code. Dot and dash timing is calculated automatically from `wpm` using the standard PARIS method. Unsupported characters are skipped.
+Flashes any text as Morse code. Dot and dash timing is calculated automatically from `wpm` using the standard PARIS method. Unsupported characters are skipped silently.
 
 | Key | Type | Range | Default | Description |
 |---|---|---|---|---|
 | `message` | string | — | `"SOS"` | Text to transmit in Morse code |
-| `wpm` | integer | 1–30 | 5 | Speed in words per minute. 1 wpm = 240ms dot. |
+| `wpm` | integer | 1–30 | 5 | Speed in words per minute |
 | `loop` | boolean | — | true | Repeat continuously or transmit once |
 
-**PARIS timing reference:**
+**PARIS timing reference** (1 wpm = 240ms dot):
 
 | wpm | dot (ms) | dash (ms) |
 |---|---|---|
@@ -513,6 +562,7 @@ Flashes any text as Morse code. Dot and dash timing is calculated automatically 
 | 15 | 80 | 240 |
 | 20 | 60 | 180 |
 
+Loop a message continuously:
 ```json
 {"features": {"stop_light": {
   "mode": "freeform",
@@ -522,7 +572,7 @@ Flashes any text as Morse code. Dot and dash timing is calculated automatically 
 }}}
 ```
 
-SOS once only (no loop):
+Transmit SOS once only:
 ```json
 {"features": {"stop_light": {
   "mode": "freeform",
@@ -536,7 +586,7 @@ SOS once only (no loop):
 
 ## Feature: servo
 
-Servo control is not yet designed. This feature is reserved for a future lab.
+Servo control is reserved for a future lab. This feature is currently an empty placeholder.
 
 ```json
 {"features": {"servo": {}}}
@@ -546,13 +596,24 @@ Servo control is not yet designed. This feature is reserved for a future lab.
 
 ## Quick Reference — freeform LED modes
 
-| Mode | PWM needed | Key params |
+| Mode | PWM needed | Required settings | Optional settings |
+|---|---|---|---|
+| `on` | No | none | — |
+| `off` | No | none | — |
+| `blink` | No | `interval`, `duration` | `random`, `random_min_interval`, `random_max_interval` |
+| `strobe` | No | `speed`, `duration` | — |
+| `fade` | Yes | `up` and/or `down` | `duration`, `loop` |
+| `pulse` | Yes | `pattern` | `rate`, `min_brightness`, `max_brightness`, `loop` |
+| `dim` | Yes | `brightness` (1–99%) | — |
+| `morse_message` | No | `message` | `wpm`, `loop` |
+
+## Quick Reference — pulse patterns
+
+| Pattern | Character | Rate suggestion |
 |---|---|---|
-| `on` | No | none |
-| `off` | No | none |
-| `blink` | No | `interval`, `duration`, `random` |
-| `strobe` | No | `speed`, `duration` |
-| `fade` | Yes | `up`, `down`, `duration`, `loop` |
-| `pulse` | Yes | `pattern`, `rate`, `min_brightness`, `max_brightness`, `loop` |
-| `dim` | Yes | `brightness` (1–99%) |
-| `morse_message` | No | `message`, `wpm`, `loop` |
+| `sine` | Smooth wave | 500–2000ms |
+| `heart` | Double-beat | 600–1000ms |
+| `breathe` | Slow inhale/hold/exhale | 3000–6000ms |
+| `flutter` | Candle flicker | 150–400ms |
+| `alert` | Flash + long pause | 800–2000ms |
+| `bounce` | Drop decay | 1000–2000ms |
